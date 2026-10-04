@@ -1,3 +1,5 @@
+export type Role = 'admin' | 'support' | 'customer'
+
 export type Env = {
   Bindings: {
     DB: D1Database
@@ -6,5 +8,5 @@ export type Env = {
     CLERK_AUTHORIZED_PARTIES: string
     ALLOWED_ORIGINS: string
   }
-  Variables: { userId: string }
+  Variables: { userId: string; role: Role; plan: string }
 }

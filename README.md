@@ -36,6 +36,8 @@ Run `pnpm typecheck` and `pnpm test` before pushing changes.
 4. Set the GitHub Actions repository variable `CLOUDFLARE_DEPLOY_ENABLED` to `true`. The workflow checks pull requests and `main` pushes, then applies remote D1 migrations and deploys on `main`. Until this variable is set, it runs checks but skips deployment. You can also run it manually from the Actions tab after enabling deployment.
 5. The Worker is served at `api.ez-ielts.nexisci.space` via the `routes` custom domain in `wrangler.jsonc`; the `nexisci.space` zone must be on the same Cloudflare account.
 
+6. Roles and plans: in Clerk → Sessions → Customize session token, add `{"role": "{{user.public_metadata.role}}", "plan": "{{user.public_metadata.plan}}"}`. Set a user's `publicMetadata` to e.g. `{"role": "admin"}` or `{"plan": "pro"}` in the Clerk dashboard. Role is `admin`, `support` or `customer`; a missing or unknown role means `customer`, and a missing plan means `free`. Changes reach the API when the user's session token next refreshes (about a minute).
+
 For a one-off manual deployment, run `pnpm run db:migrate:remote` followed by `pnpm run deploy` with Cloudflare authentication configured. Do not put Cloudflare or Clerk credentials in this repository.
 
 The Clerk public verification key is a Worker secret so requests are verified without a per-request Clerk API call. Never use the Clerk secret key as the JWT public key. Authentication failures return 401; server failures return a generic 500 response and are logged by the Worker.

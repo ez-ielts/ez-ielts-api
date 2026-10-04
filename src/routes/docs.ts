@@ -18,7 +18,7 @@ const spec = {
   components: {
     securitySchemes: { bearer: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT', description: 'Clerk session token' } },
     schemas: {
-      Me: { type: 'object', properties: { userId: { type: 'string' }, metadata: { type: 'object', additionalProperties: true } } },
+      Me: { type: 'object', properties: { userId: { type: 'string' }, role: { type: 'string', enum: ['admin', 'support', 'customer'] }, plan: { type: 'string', example: 'free' }, metadata: { type: 'object', additionalProperties: true } } },
       Error: { type: 'object', properties: { error: { type: 'string' } } },
       Writing: { type: 'object', properties: { id: { type: 'string' }, prompt: { type: 'string' }, response: { type: 'string' }, created_at: { type: 'string', format: 'date-time' } } },
       Speaking: { type: 'object', properties: { id: { type: 'string' }, prompt: { type: 'string' }, upload_id: { type: 'string' }, created_at: { type: 'string', format: 'date-time' } } },

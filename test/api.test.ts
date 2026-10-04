@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import app from '../src/index'
+import { readAccess } from '../src/middleware/auth'
 import type { Env } from '../src/types/env'
 
 const env = {
@@ -32,5 +33,14 @@ describe('public and protected routes', () => {
     const denied = await app.request('/v1/health', { headers: { Origin: 'https://attacker.example' } }, env)
     expect(allowed.headers.get('Access-Control-Allow-Origin')).toBe('https://www.ez-ielts.com')
     expect(denied.headers.get('Access-Control-Allow-Origin')).not.toBe('https://attacker.example')
+  })
+})
+
+describe('role and plan claims', () => {
+  it('accepts known roles and falls back to customer on free', () => {
+    expect(readAccess({ role: 'admin', plan: 'pro' })).toEqual({ role: 'admin', plan: 'pro' })
+    expect(readAccess({})).toEqual({ role: 'customer', plan: 'free' })
+    expect(readAccess({ role: 'superuser', plan: '' })).toEqual({ role: 'customer', plan: 'free' })
+    expect(readAccess({ role: ['admin'], plan: 42 })).toEqual({ role: 'customer', plan: 'free' })
   })
 })
