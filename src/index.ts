@@ -14,7 +14,8 @@ const app = new Hono<Env>()
 app.onError(onError)
 app.use('*', cors({
   origin: (origin, c) => c.env.ALLOWED_ORIGINS?.split(',').map((s: string) => s.trim()).includes(origin) ? origin : '',
-  allowHeaders: ['Authorization', 'Content-Type'],
+  allowHeaders: ['Authorization', 'Content-Type', 'Idempotency-Key'],
+  exposeHeaders: ['Retry-After'],
   allowMethods: ['GET', 'POST', 'PUT', 'OPTIONS'],
   maxAge: 86400,
 }))

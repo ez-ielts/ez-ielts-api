@@ -34,6 +34,14 @@ describe('public and protected routes', () => {
     expect(allowed.headers.get('Access-Control-Allow-Origin')).toBe('https://www.ez-ielts.com')
     expect(denied.headers.get('Access-Control-Allow-Origin')).not.toBe('https://attacker.example')
   })
+
+  it('answers preflight with the headers the web client sends', async () => {
+    const response = await app.request('/v1/writing', { method: 'OPTIONS', headers: { Origin: 'https://www.ez-ielts.com', 'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': 'authorization,content-type,idempotency-key' } }, env)
+    expect(response.status).toBe(204)
+    expect(response.headers.get('Access-Control-Allow-Headers')).toBe('Authorization,Content-Type,Idempotency-Key')
+    const actual = await app.request('/v1/health', { headers: { Origin: 'https://www.ez-ielts.com' } }, env)
+    expect(actual.headers.get('Access-Control-Expose-Headers')).toBe('Retry-After')
+  })
 })
 
 describe('role and plan claims', () => {
