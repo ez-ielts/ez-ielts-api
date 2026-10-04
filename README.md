@@ -30,7 +30,7 @@ Run `pnpm typecheck` and `pnpm test` before pushing changes.
 
 ## Production setup
 
-1. Create a production D1 database named `ez-ielts-api` and an R2 bucket named `ez-ielts-files`, then update the D1 ID in `wrangler.jsonc`. R2 must first be enabled for the Cloudflare account in Storage & databases → R2 → Overview.
+1. The production D1 database `ez-ielts-api` is bound in `wrangler.jsonc`. Create an R2 bucket named `ez-ielts-files`. R2 must first be enabled for the Cloudflare account in Storage & databases → R2 → Overview.
 2. Set Worker secrets with `pnpm exec wrangler secret put CLERK_JWT_KEY`, `pnpm exec wrangler secret put CLERK_AUTHORIZED_PARTIES`, and `pnpm exec wrangler secret put ALLOWED_ORIGINS`.
 3. Add GitHub Actions repository secrets `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`. The token needs Worker deployment, D1 Write, and Workers R2 Storage Write access, scoped to the production Cloudflare account. Find the account ID in Cloudflare's Workers & Pages account details; create the token in Cloudflare's API Tokens page.
 4. Set the GitHub Actions repository variable `CLOUDFLARE_DEPLOY_ENABLED` to `true`. The workflow checks pull requests and `main` pushes, then applies remote D1 migrations and deploys on `main`. Until this variable is set, it runs checks but skips deployment. You can also run it manually from the Actions tab after enabling deployment.
