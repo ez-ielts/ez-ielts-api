@@ -24,7 +24,11 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Check account ID matches token access
+        run: |
+          pnpm exec wrangler whoami --json | jq -e --arg id "$CLOUDFLARE_ACCOUNT_ID" '[.. | strings] | index($id) != null'
       - name: List D1 databases
         run: pnpm exec wrangler d1 list --json
       - name: List R2 buckets
+        if: always()
         run: pnpm exec wrangler r2 bucket list
