@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { AUDIO_TYPES, MAX_UPLOAD_BYTES } from '../services/storage'
+import { MAX_METADATA_BYTES } from './me'
 import type { Env } from '../types/env'
 
 const error = (description: string) => ({ description, content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } })
@@ -17,6 +18,7 @@ const spec = {
   components: {
     securitySchemes: { bearer: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT', description: 'Clerk session token' } },
     schemas: {
+      Me: { type: 'object', properties: { userId: { type: 'string' }, metadata: { type: 'object', additionalProperties: true } } },
       Error: { type: 'object', properties: { error: { type: 'string' } } },
       Writing: { type: 'object', properties: { id: { type: 'string' }, prompt: { type: 'string' }, response: { type: 'string' }, created_at: { type: 'string', format: 'date-time' } } },
       Speaking: { type: 'object', properties: { id: { type: 'string' }, prompt: { type: 'string' }, upload_id: { type: 'string' }, created_at: { type: 'string', format: 'date-time' } } },
@@ -25,7 +27,16 @@ const spec = {
   },
   paths: {
     '/v1/health': { get: { tags: ['system'], summary: 'Health check', security: [], responses: { 200: { description: 'OK', content: { 'application/json': { schema: { type: 'object', properties: { status: { type: 'string', example: 'ok' } } } } } } } } },
-    '/v1/me': { get: { tags: ['system'], summary: 'Current user', responses: { 200: { description: 'Current user', content: { 'application/json': { schema: { type: 'object', properties: { userId: { type: 'string' } } } } } }, ...authErrors } } },
+    '/v1/me': { get: { tags: ['me'], summary: 'Current user and metadata', responses: { 200: json('Current user', 'Me'), ...authErrors } } },
+    '/v1/me/metadata': {
+      put: {
+        tags: ['me'],
+        summary: 'Replace user metadata',
+        description: `Replaces the whole metadata object (max ${MAX_METADATA_BYTES / 1024} KB as JSON). To change one field, GET, modify, then PUT.`,
+        requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', additionalProperties: true, example: { targetBand: 7, examDate: '2026-12-01' } } } } },
+        responses: { 200: json('Saved', 'Me'), 400: error('invalid_input'), ...authErrors },
+      },
+    },
     '/v1/writing': {
       get: { tags: ['writing'], summary: 'List writing submissions', responses: { 200: list('Writing'), ...authErrors } },
       post: {

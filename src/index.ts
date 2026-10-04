@@ -15,7 +15,7 @@ app.onError(onError)
 app.use('*', cors({
   origin: (origin, c) => c.env.ALLOWED_ORIGINS?.split(',').map((s: string) => s.trim()).includes(origin) ? origin : '',
   allowHeaders: ['Authorization', 'Content-Type'],
-  allowMethods: ['GET', 'POST', 'OPTIONS'],
+  allowMethods: ['GET', 'POST', 'PUT', 'OPTIONS'],
   maxAge: 86400,
 }))
 app.route('/', docs)
