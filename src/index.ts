@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { requireAuth } from './middleware/auth'
 import { onError } from './middleware/error-handler'
+import { docs } from './routes/docs'
 import { health } from './routes/health'
 import { me } from './routes/me'
 import { writing } from './routes/writing'
@@ -17,6 +18,7 @@ app.use('*', cors({
   allowMethods: ['GET', 'POST', 'OPTIONS'],
   maxAge: 86400,
 }))
+app.route('/', docs)
 app.route('/v1/health', health)
 app.use('/v1/me/*', requireAuth)
 app.use('/v1/writing/*', requireAuth)
