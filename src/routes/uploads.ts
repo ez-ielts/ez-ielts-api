@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { uploads as db } from '../db/queries'
-import { AUDIO_TYPES, MAX_UPLOAD_BYTES, storeAudio } from '../services/storage'
+import { AUDIO_TYPES, MAX_TOTAL_BYTES, MAX_UPLOAD_BYTES, storeAudio } from '../services/storage'
 import type { Env } from '../types/env'
 
 export const uploads = new Hono<Env>()
@@ -9,6 +9,10 @@ export const uploads = new Hono<Env>()
     const declaredSize = c.req.header('Content-Length')
     if (!AUDIO_TYPES.has(contentType) || (declaredSize && (!Number.isSafeInteger(Number(declaredSize)) || Number(declaredSize) > MAX_UPLOAD_BYTES)) || !c.req.raw.body) {
       return c.json({ error: 'invalid_upload', maxBytes: MAX_UPLOAD_BYTES }, 400)
+    }
+    // ponytail: check-then-write, concurrent uploads can overshoot by a few MAX_UPLOAD_BYTES; the 1 GB headroom covers it.
+    if (await db.totalBytes(c.env.DB) + Number(declaredSize ?? MAX_UPLOAD_BYTES) > MAX_TOTAL_BYTES) {
+      return c.json({ error: 'storage_full' }, 507)
     }
     const id = crypto.randomUUID()
     const key = `${c.get('userId')}/${id}`

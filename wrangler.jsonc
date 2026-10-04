@@ -3,6 +3,7 @@
   "name": "ez-ielts-api",
   "main": "src/index.ts",
   "compatibility_date": "2026-10-04",
+  "routes": [{ "pattern": "api.ez-ielts.nexisci.space", "custom_domain": true }],
   "d1_databases": [
     {
       "binding": "DB",

@@ -1,4 +1,6 @@
 export const MAX_UPLOAD_BYTES = 20 * 1024 * 1024
+// Stay under the R2 free tier (10 GB).
+export const MAX_TOTAL_BYTES = 9 * 1024 * 1024 * 1024
 export const AUDIO_TYPES = new Set(['audio/webm', 'audio/mpeg', 'audio/mp4', 'audio/wav', 'audio/ogg'])
 
 export async function storeAudio(bucket: R2Bucket, key: string, body: ReadableStream<Uint8Array>, contentType: string): Promise<number> {

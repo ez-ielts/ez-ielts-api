@@ -13,6 +13,7 @@ export const speaking = {
 }
 
 export const uploads = {
+  totalBytes: async (db: D1Database) => (await db.prepare('SELECT COALESCE(SUM(byte_size), 0) AS total FROM uploads').first<{ total: number }>())!.total,
   get: (db: D1Database, userId: string, id: string) => db.prepare('SELECT id, object_key, content_type, byte_size, created_at FROM uploads WHERE user_id = ? AND id = ?').bind(userId, id).first<Upload>(),
   create: (db: D1Database, userId: string, id: string, key: string, contentType: string, byteSize: number) => db.prepare('INSERT INTO uploads (id, user_id, object_key, content_type, byte_size) VALUES (?, ?, ?, ?, ?)').bind(id, userId, key, contentType, byteSize).run(),
 }
