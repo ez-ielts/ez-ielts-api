@@ -32,7 +32,10 @@ Run `pnpm typecheck` and `pnpm test` before pushing changes.
 
 1. Create production D1 and R2 resources, and update the D1 ID in `wrangler.jsonc`.
 2. Set Worker secrets with `pnpm exec wrangler secret put CLERK_JWT_KEY`, `pnpm exec wrangler secret put CLERK_AUTHORIZED_PARTIES`, and `pnpm exec wrangler secret put ALLOWED_ORIGINS`.
-3. Apply migrations with `pnpm db:migrate:remote` and deploy with `pnpm deploy`.
-4. Attach the Worker to `api.ez-ielts.com` in Cloudflare and configure DNS. Deployment and resource creation are deliberately separate from repository creation.
+3. Add GitHub Actions repository secrets `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`. The token needs Worker deployment access and D1 write access, scoped to the production Cloudflare account. Find the account ID in Cloudflare's Workers & Pages account details; create the token in Cloudflare's API Tokens page.
+4. Set the GitHub Actions repository variable `CLOUDFLARE_DEPLOY_ENABLED` to `true`. The workflow checks pull requests and `main` pushes, then applies remote D1 migrations and deploys on `main`. Until this variable is set, it runs checks but skips deployment. You can also run it manually from the Actions tab after enabling deployment.
+5. Attach the Worker to `api.ez-ielts.com` in Cloudflare and configure DNS. The workflow does not create a custom domain.
+
+For a one-off manual deployment, run `pnpm run db:migrate:remote` followed by `pnpm run deploy` with Cloudflare authentication configured. Do not put Cloudflare or Clerk credentials in this repository.
 
 The Clerk public verification key is a Worker secret so requests are verified without a per-request Clerk API call. Never use the Clerk secret key as the JWT public key. Authentication failures return 401; server failures return a generic 500 response and are logged by the Worker.
